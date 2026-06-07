@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(curl -s -k -u admin:admin https://localhost:9200)",
+      "Bash(curl -s http://localhost:9200)",
+      "Bash(curl -s -k -u admin:admin https://localhost:9200/_cluster/health)",
+      "Bash(npm run *)",
+      "Bash(curl -s -k -u admin:admin \"https://localhost:9200/products/_search?pretty\" -H 'Content-Type: application/json' -d '{\"query\":{\"match\":{\"name\":\"macbook\"}},\"_source\":[\"name\",\"price\"]}')",
+      "Bash(curl -s -k -u admin:admin \"https://localhost:9200/products/_doc/1?pretty&_source=name,category,price\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('found:', d.get\\('found'\\)\\); print\\('source:', d.get\\('_source'\\)\\)\")",
+      "Bash(curl -s -k -u admin:admin \"https://localhost:9200/products/_search?pretty&size=20&_source=name\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('total:', d['hits']['total']['value']\\); [print\\(' ', h['_id'], '->', h['_source']['name']\\) for h in sorted\\(d['hits']['hits'], key=lambda x:int\\(x['_id']\\)\\)]\")",
+      "Bash(curl -s -k -u admin:admin -X DELETE https://localhost:9200/nrt_demo)",
+      "Bash(curl -s -k -u admin:admin -X PUT https://localhost:9200/nrt_demo/_doc/1 -H 'Content-Type: application/json' -d '{\"name\":\"test\"}')",
+      "Bash(curl -s -k -u admin:admin -X POST https://localhost:9200/nrt_demo/_search -H 'Content-Type: application/json' -d '{\"query\":{\"match_all\":{}}}')",
+      "Bash(curl -s -k -u admin:admin https://localhost:9200/nrt_demo/_doc/1)"
+    ]
+  }
+}

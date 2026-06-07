@@ -1,0 +1,138 @@
+# ============================================================
+# Giai đoạn 1 — Index & Mapping (chạy từng khối trong Dev Tools)
+# ============================================================
+
+# ---------- A. CRUD cơ bản ----------
+
+# Tạo (index) một document với id = 1
+PUT /products/_doc/1
+{
+  "name": "Laptop Dell XPS 13",
+  "category": "laptop",
+  "price": 32000000,
+  "stock": 12
+}
+
+# Đọc document
+GET /products/_doc/1
+
+# Cập nhật một phần (chỉ đổi stock, giữ nguyên các field khác)
+POST /products/_update/1
+{
+  "doc": { "stock": 10 }
+}
+
+# Kiểm tra: _version đã tăng, stock = 10
+GET /products/_doc/1
+
+# Xoá document
+DELETE /products/_doc/1
+
+
+# ---------- B. Dynamic mapping (tự đoán kiểu) ----------
+
+# Xoá index cũ để làm lại sạch
+DELETE /products
+
+# Index 1 document mà KHÔNG khai mapping trước -> ES tự đoán
+PUT /products/_doc/1
+{
+  "name": "MacBook Air M2",
+  "price": 28000000,
+  "created_at": "2024-02-10"
+}
+
+# Xem ES đã đoán kiểu gì (chú ý: name vừa là text vừa có sub-field keyword)
+GET /products/_mapping
+
+
+# ---------- C. Explicit mapping (tự khai báo) ----------
+
+DELETE /products
+
+# Tạo index với mapping rõ ràng + settings
+PUT /products
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "name":       { "type": "text", "fields": { "keyword": { "type": "keyword" } } },
+      "category":   { "type": "keyword" },
+      "brand":      { "type": "keyword" },
+      "price":      { "type": "long" },
+      "stock":      { "type": "integer" },
+      "rating":     { "type": "float" },
+      "tags":       { "type": "keyword" },
+      "created_at": { "type": "date" }
+    }
+  }
+}
+
+GET /products/_mapping
+
+
+# ---------- D. Nạp hàng loạt bằng _bulk ----------
+# (Hoặc dùng: npm run seed:products để nạp đủ 12 sản phẩm bằng Node.js)
+
+POST _bulk
+{ "index": { "_index": "products", "_id": "1" } }
+{ "name": "Laptop Dell XPS 13", "category": "laptop", "brand": "Dell", "price": 32000000, "stock": 12, "rating": 4.7, "tags": ["ultrabook","mỏng nhẹ"], "created_at": "2024-01-15" }
+{ "index": { "_index": "products", "_id": "2" } }
+{ "name": "MacBook Air M2", "category": "laptop", "brand": "Apple", "price": 28000000, "stock": 8, "rating": 4.8, "tags": ["ultrabook","macos"], "created_at": "2024-02-10" }
+{ "index": { "_index": "products", "_id": "4" } }
+{ "name": "iPhone 15 Pro", "category": "điện thoại", "brand": "Apple", "price": 27000000, "stock": 25, "rating": 4.9, "tags": ["flagship","camera"], "created_at": "2024-01-20" }
+
+# Đếm số document
+GET /products/_count
+
+# Xem tất cả
+GET /products/_search
+{
+  "from": 0,
+  "size": 20,
+  "query": { "match_all": {} }
+}
+
+
+# ---------- E. text vs keyword (minh hoạ) ----------
+
+# Tìm theo keyword (chính xác toàn bộ) — dùng category (keyword)
+GET /products/_search
+{
+  "query": { "term": { "category": "laptop" } }
+}
+
+# Full-text trên field text — dùng name
+GET /products/_search
+{
+  "query": { "match": { "name": "macbook" } }
+}
+
+# Sort theo name.keyword (KHÔNG sort được trên field text thuần)
+GET /products/_search
+{
+  "query": { "match_all": {} },
+  "sort": [ { "name.keyword": "asc" } ]
+}
+
+
+# ---------- F. Optimistic concurrency control ----------
+
+# Đọc để lấy _seq_no và _primary_term
+GET /products/_doc/1
+
+# Chỉ ghi nếu document chưa bị ai sửa (thay số cho khớp kết quả trên)
+PUT /products/_doc/1?if_seq_no=0&if_primary_term=1
+{
+  "name": "Laptop Dell XPS 13 (2024)",
+  "category": "laptop",
+  "brand": "Dell",
+  "price": 31000000,
+  "stock": 12,
+  "rating": 4.7,
+  "tags": ["ultrabook"],
+  "created_at": "2024-01-15"
+}

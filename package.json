@@ -1,0 +1,14 @@
+{
+  "name": "elasticsearch-learning",
+  "version": "1.0.0",
+  "description": "Lộ trình học Elasticsearch (qua OpenSearch 2.11.1) từ cơ bản đến nâng cao",
+  "type": "module",
+  "scripts": {
+    "ping": "node client/ping.js",
+    "seed:products": "node datasets/seed-products.js"
+  },
+  "dependencies": {
+    "@opensearch-project/opensearch": "^2.5.0",
+    "dotenv": "^16.4.5"
+  }
+}

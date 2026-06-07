@@ -1,0 +1,47 @@
+# Tái sử dụng image OpenSearch 2.11.1 đã có sẵn trên máy.
+# OpenSearch = bản fork của Elasticsearch 7.10 -> kiến thức Query DSL/mapping/aggs gần như giống hệt ES.
+# Chạy: docker compose up -d   |   Tắt: docker compose down   |   Tắt + xoá data: docker compose down -v
+
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    container_name: es-learn-node
+    environment:
+      - cluster.name=es-learn-cluster
+      - node.name=es-learn-node
+      - discovery.type=single-node            # 1 node duy nhất cho việc học
+      - bootstrap.memory_lock=true            # khoá RAM, tránh swap
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # heap 512MB, đủ để học
+      # Bản 2.11.1 dùng mật khẩu demo mặc định admin/admin (không cần biến OPENSEARCH_INITIAL_ADMIN_PASSWORD như 2.12+)
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"   # REST API (HTTPS)
+      - "9600:9600"   # Performance Analyzer
+    networks:
+      - es-learn-net
+
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:2.11.1
+    container_name: es-learn-dashboards
+    ports:
+      - "5601:5601"   # Giao diện web + Dev Tools
+    environment:
+      - 'OPENSEARCH_HOSTS=["https://opensearch:9200"]'
+    depends_on:
+      - opensearch
+    networks:
+      - es-learn-net
+
+volumes:
+  opensearch-data:
+
+networks:
+  es-learn-net:

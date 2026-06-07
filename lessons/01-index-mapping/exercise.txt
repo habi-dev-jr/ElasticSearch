@@ -1,0 +1,51 @@
+# Tạo index
+PUT /books
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "title":      { "type": "text", "fields": { "keyword": { "type": "keyword" } } },
+      "author":     { "type": "keyword" },
+      "year":       { "type": "integer" },
+      "price":      { "type": "float" }
+    }
+  }
+}
+
+# Xem Mapping của Index
+GET /books/_mapping
+
+# Tạo hàng loạt record
+POST _bulk
+{ "index": { "_index": "books", "_id": "1" } }
+{ "title": "How to becomes success", "author": "Victor", "year": 2022, "price": 32000000}
+{ "index": { "_index": "books", "_id": "2" } }
+{ "title": "What is API", "author": "Nodejs Team", "year": 2023, "price": 39000000}
+{ "index": { "_index": "books" } }
+{ "title": "How to becomes architecture", "author": "Hoai Bao", "year": 2020, "price": 52000000}
+
+# Get all với phân trang
+GET /books/_search
+{
+  "from": 0,
+  "size": 20,
+  "query": { "match_all": {} }
+}
+
+# Tạo record với field language chưa khai báo
+PUT /books/_doc/3
+{
+  "title": "Guide MacBook Air M2",
+  "author": "Apple Team",
+  "language": "English",
+  "price": 28000000
+}
+
+# Update partial
+POST /books/_update/1
+{
+  "doc": { "price": 28000000 }
+}

@@ -1,0 +1,41 @@
+# ============================================================
+# Giai đoạn 0 — Query mẫu (chạy trong Dev Tools, từng khối một)
+# ============================================================
+
+# --- Thông tin cơ bản về cluster ---
+GET /
+
+# Sức khoẻ cluster: status (green/yellow/red), số node, số shard
+GET _cluster/health
+
+# Danh sách node (?v = hiển thị header cột)
+GET _cat/nodes?v
+
+# Danh sách index (kể cả index hệ thống bắt đầu bằng dấu .)
+GET _cat/indices?v
+
+# Thông tin shard: mỗi shard ở đâu, primary (p) hay replica (r), trạng thái
+GET _cat/shards?v
+
+# --- Tạo thử một document (Elasticsearch tự tạo index nếu chưa có) ---
+PUT /hello/_doc/1
+{
+  "message": "Xin chào Elasticsearch!",
+  "author": "hoc-vien",
+  "created_at": "2024-01-01"
+}
+
+# Đọc lại document vừa tạo
+GET /hello/_doc/1
+
+# Tìm kiếm toàn bộ document trong index hello
+GET /hello/_search
+{
+  "query": { "match_all": {} }
+}
+
+# Xem index hello vừa tạo trong danh sách (chú ý health = yellow do thiếu replica)
+GET _cat/indices/hello?v
+
+# --- Dọn dẹp ---
+DELETE /hello
