@@ -38,7 +38,85 @@ Mỗi document có metadata: `_index`, `_id`, `_version` (tăng mỗi lần ghi)
 > ```
 > Khi đó dùng `name` để full-text, `name.keyword` để sort/aggregate.
 
-Các kiểu thường gặp khác: `long`/`integer`/`float` (số), `date`, `boolean`, `object` (JSON lồng), `nested` (mảng object cần truy vấn độc lập từng phần tử).
+### Tổng hợp tất cả Data Types
+
+#### String
+| Type | Mô tả |
+|---|---|
+| `text` | Full-text search, qua analyzer (tách từ, lowercase…) |
+| `keyword` | Chuỗi nguyên vẹn, dùng cho filter chính xác / sort / aggregation |
+
+#### Numeric
+| Type | Mô tả |
+|---|---|
+| `long` | Số nguyên 64-bit có dấu |
+| `integer` | Số nguyên 32-bit có dấu |
+| `short` | Số nguyên 16-bit có dấu |
+| `byte` | Số nguyên 8-bit có dấu |
+| `double` | Số thực 64-bit (double precision) |
+| `float` | Số thực 32-bit (single precision) |
+| `half_float` | Số thực 16-bit (half precision), tiết kiệm lưu trữ |
+| `scaled_float` | Số thực lưu dưới dạng long × scaling factor (vd `scaling_factor: 100` cho tiền tệ) |
+| `unsigned_long` | Số nguyên 64-bit không dấu |
+
+#### Date
+| Type | Mô tả |
+|---|---|
+| `date` | Ngày/giờ — ISO 8601, epoch ms, hoặc format tự định nghĩa |
+| `date_nanos` | Ngày/giờ độ phân giải nanosecond |
+
+#### Boolean
+| Type | Mô tả |
+|---|---|
+| `boolean` | `true` / `false` |
+
+#### Binary
+| Type | Mô tả |
+|---|---|
+| `binary` | Dữ liệu nhị phân mã hoá Base64, không được index (không search được) |
+
+#### Range
+| Type | Mô tả |
+|---|---|
+| `integer_range` | Khoảng số nguyên |
+| `long_range` | Khoảng số nguyên 64-bit |
+| `float_range` | Khoảng số thực 32-bit |
+| `double_range` | Khoảng số thực 64-bit |
+| `date_range` | Khoảng ngày giờ |
+| `ip_range` | Khoảng địa chỉ IP |
+
+#### Object & Relational
+| Type | Mô tả |
+|---|---|
+| `object` | JSON object lồng nhau, các field con được flatten khi index |
+| `nested` | Mảng object — mỗi phần tử được index độc lập, dùng `nested query` |
+| `flattened` | Toàn bộ object con lưu dưới 1 field, dùng khi cấu trúc không cố định |
+| `join` | Quan hệ parent-child trong cùng 1 index |
+
+#### Geo / Spatial
+| Type | Mô tả |
+|---|---|
+| `geo_point` | Toạ độ lat/lon — hỗ trợ tìm theo khoảng cách, bounding box |
+| `geo_shape` | Hình học phức tạp (polygon, linestring…) |
+| `point` | Toạ độ Cartesian (không phải địa lý) |
+| `shape` | Hình học Cartesian phức tạp |
+
+#### Specialized
+| Type | Mô tả |
+|---|---|
+| `ip` | Địa chỉ IPv4 / IPv6 |
+| `completion` | Tối ưu cho autocomplete / suggest |
+| `search_as_you_type` | Full-text search kiểu "gõ đến đâu gợi ý đến đó" |
+| `token_count` | Đếm số token sau khi phân tích, lưu dưới dạng integer |
+| `dense_vector` | Mảng float độ dài cố định — dùng cho vector search / kNN |
+| `sparse_vector` | Vector thưa (key-value), dùng cho semantic search (ELSER) |
+| `rank_feature` | Số thực dương để boost điểm relevance trong `rank_feature` query |
+| `rank_features` | Nhiều `rank_feature` trong 1 field |
+| `histogram` | Dữ liệu histogram pre-aggregated |
+| `aggregate_metric_double` | Metric pre-aggregated (min/max/sum/value_count) |
+| `percolator` | Lưu trữ query để dùng trong percolate (tìm query khớp document) |
+| `alias` | Alias cho 1 field khác trong cùng index |
+| `version` | Chuỗi version theo SemVer (vd `1.2.3`), so sánh đúng thứ tự |
 
 ## 4. `_bulk` API — nạp hàng loạt
 
